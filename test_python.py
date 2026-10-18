@@ -7,6 +7,7 @@ from python_basics import (
     has_unique_characters,
     count_one_bits,
     multiplicative_persistence,
+    prime_factorization,
 )
 
 def text(value):
@@ -76,3 +77,21 @@ def test_count_one_bits(value, expected):
 )
 def test_multiplicative_persistence(value, expected):
     assert multiplicative_persistence(text(value)) == expected
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (1, "(1)"),                      
+        (2, "(2)"),                      
+        (4, "(2**2)"),                  
+        (12, "(2**2)(3)"),               
+        (97, "(97)"),                    
+        (86240, "(2**5)(5)(7**2)(11)"),  
+        (2 * 3 * 5 * 7, "(2)(3)(5)(7)"), 
+        (2**10, "(2**10)"),              
+        (99991, "(99991)"),   
+    ],
+)
+def test_prime_factorization(value, expected):
+    assert prime_factorization(text(value)) == expected
