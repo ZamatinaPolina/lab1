@@ -8,6 +8,7 @@ from python_basics import (
     count_one_bits,
     multiplicative_persistence,
     prime_factorization,
+    pyramid,
 )
 
 def text(value):
@@ -95,3 +96,22 @@ def test_multiplicative_persistence(value, expected):
 )
 def test_prime_factorization(value, expected):
     assert prime_factorization(text(value)) == expected
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (1, 1),    
+        (5, 2),    
+        (14, 3),    
+        (55, 5),
+        (91, 6),
+    ],
+)
+def test_pyramid_possible(value, expected):
+    assert pyramid(text(value)) == expected
+
+
+@pytest.mark.parametrize("value", [2, 6, 13, 15, 100])
+def test_pyramid_impossible(value):
+    assert pyramid(text(value)) == "It is impossible"
