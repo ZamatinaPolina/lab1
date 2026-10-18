@@ -9,6 +9,8 @@ from python_basics import (
     multiplicative_persistence,
     prime_factorization,
     pyramid,
+    is_balanced_number,
+    mse
 )
 
 def text(value):
@@ -80,6 +82,28 @@ def test_multiplicative_persistence(value, expected):
     assert multiplicative_persistence(text(value)) == expected
 
 
+def vectors(predicted, expected):
+    return SimpleNamespace(predicted=predicted, expected=expected)
+
+
+def test_mse_basic():
+    assert mse(vectors([1, 2, 3], [1, 2, 3])) == 0           # векторы совпадают
+    assert mse(vectors([1, 2, 3], [2, 3, 4])) == 1           # разность равна 1
+    assert mse(vectors([0, 0], [3, 4])) == pytest.approx(12.5)  # (9 + 16) / 2
+
+
+def test_mse_single_and_negative():
+    assert mse(vectors([5], [2])) == 9                        # один элемент
+    assert mse(vectors([-1, -2], [1, 2])) == pytest.approx(10.0)  # отрицательные числа
+
+
+def test_mse_invalid():
+    with pytest.raises(ValueError):
+        mse(vectors([], []))           # пустые векторы
+    with pytest.raises(ValueError):
+        mse(vectors([1, 2], [1]))      # разная длина
+
+
 @pytest.mark.parametrize(
     "value, expected",
     [
@@ -115,3 +139,24 @@ def test_pyramid_possible(value, expected):
 @pytest.mark.parametrize("value", [2, 6, 13, 15, 100])
 def test_pyramid_impossible(value):
     assert pyramid(text(value)) == "It is impossible"
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (1, True),         # одна цифра: обе суммы пустые
+        (7, True),
+        (11, True),        # две цифры: обе средние, суммы пустые
+        (12, True),        # две цифры: все пропущены
+        (123, False),      # 1 против 3
+        (121, True),       # 1 против 1, средняя 2 пропущена
+        (1234006, True),   # пример из условия
+        (123456, False),   # пример из условия: 1 + 2 != 5 + 6
+        (1221, True),      # 1 против 1, средние 2 и 2 пропущены
+        (1331, True),
+        (1241, True),      # 1 против 1, средние пропущены
+        (4321, False),     # 4 против 1
+    ],
+)
+def test_is_balanced_number(value, expected):
+    assert is_balanced_number(text(value)) is expected
