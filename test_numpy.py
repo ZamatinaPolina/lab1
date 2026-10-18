@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 
 
-from numpy_tasks import sum_prod, binarize
-from grader_contracts.numpy_tasks import MatrixVectorBatchInput, BinarizeInput
+from numpy_tasks import sum_prod, binarize, unique_rows, unique_columns
+from grader_contracts.numpy_tasks import MatrixVectorBatchInput, BinarizeInput, MatrixInput
 
 
 def test_sum_prod_basic():
