@@ -2,9 +2,12 @@ from types import SimpleNamespace
 
 import pytest
 
-from python_basics import count_vowels
-from python_basics import has_unique_characters
-from python_basics import count_one_bits
+from python_basics import (
+    count_vowels,
+    has_unique_characters,
+    count_one_bits,
+    multiplicative_persistence,
+)
 
 def text(value):
     return SimpleNamespace(value=value)
@@ -57,3 +60,19 @@ def test_has_unique_characters(value, expected):
 )
 def test_count_one_bits(value, expected):
     assert count_one_bits(text(value)) == expected
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (4, 0),         # однозначное
+        (10, 1),        # 1*0 = 0
+        (25, 2),        # 2*5=10, 1*0=0
+        (39, 3),         
+        (77, 4),        # 49, 36, 18, 8
+        (999, 4),       
+        (10**6, 1),     #  1*0*0*0*0*0... = 0
+    ],
+)
+def test_multiplicative_persistence(value, expected):
+    assert multiplicative_persistence(text(value)) == expected
