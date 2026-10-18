@@ -56,4 +56,4 @@ def test_has_unique_characters(value, expected):
     ],
 )
 def test_count_one_bits(value, expected):
-    assert count_one_bits(SimpleNamespace(value=value)) == expected
+    assert count_one_bits(text(value)) == expected
