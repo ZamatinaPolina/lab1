@@ -1,4 +1,4 @@
-"""Заготовки задач на базовый Python."""
+
 
 from grader_contracts.python_basics import PositiveIntegerInput, TextInput, VectorPairInput
 
