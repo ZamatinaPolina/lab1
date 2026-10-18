@@ -23,13 +23,13 @@ def binarize(data: BinarizeInput) -> np.ndarray:
 
 
 def unique_rows(data: MatrixInput) -> list[list[float]]:
-    matrix = data.matrix
-    raise NotImplementedError  # TODO
+    matrix = np.asarray(data.matrix)
+    return [np.unique(row).tolist() for row in matrix]
 
 
 def unique_columns(data: MatrixInput) -> list[list[float]]:
-    matrix = data.matrix
-    raise NotImplementedError  # TODO
+    matrix = np.asarray(data.matrix)
+    return [np.unique(column).tolist() for column in matrix.T]
 
 
 def matrix_statistics(data: RandomMatrixInput) -> MatrixStatistics:
