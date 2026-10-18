@@ -18,7 +18,8 @@ def sum_prod(data: MatrixVectorBatchInput) -> np.ndarray:
 
 def binarize(data: BinarizeInput) -> np.ndarray:
     matrix, threshold = data.matrix, data.threshold
-    raise NotImplementedError  # TODO
+    matrix = np.asarray(matrix)
+    return (matrix > threshold).astype(int)
 
 
 def unique_rows(data: MatrixInput) -> list[list[float]]:
