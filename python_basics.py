@@ -10,7 +10,7 @@ def count_vowels(data: TextInput) -> int:
 
 def has_unique_characters(data: TextInput) -> bool:
     text = data.value
-    raise NotImplementedError  # TODO
+    return len(set(text)) == len(text)
 
 
 def count_one_bits(data: PositiveIntegerInput) -> int:
