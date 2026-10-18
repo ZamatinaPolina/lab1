@@ -21,7 +21,6 @@ def test_sum_prod_single_pair():
 
 
 def test_sum_prod_size_one():
-    # матрицы 1x1 (n = 1)
     matrices = np.array([[[2]], [[3]]])
     vectors = np.array([[[4]], [[5]]])
     result = sum_prod(MatrixVectorBatchInput(matrices, vectors))
@@ -50,14 +49,12 @@ def test_binarize_basic():
 
 
 def test_binarize_strictly_greater():
-    # числа, равные порогу, становятся 0
     matrix = np.array([[2, 3], [4, 5]])
     result = binarize(BinarizeInput(matrix, 3))
     np.testing.assert_array_equal(result, [[0, 0], [1, 1]])
 
 
 def test_binarize_default_threshold():
-    # порог по умолчанию 0.5, его не передаём
     matrix = np.array([[0.2, 0.5], [0.7, 0.51]])
     result = binarize(BinarizeInput(matrix))
     np.testing.assert_array_equal(result, [[0, 0], [1, 1]])
@@ -91,3 +88,49 @@ def test_binarize_does_not_change_original():
 def test_binarize_keeps_shape():
     matrix = np.arange(6).reshape(2, 3)      
     assert binarize(BinarizeInput(matrix, 2)).shape == (2, 3)
+
+#unique_rows unique_columns
+
+def test_unique_basic():
+    matrix = np.array([[7, 3, 7], [5, 5, 1]])
+    assert unique_rows(MatrixInput(matrix)) == [[3, 7], [1, 5]]
+    assert unique_columns(MatrixInput(matrix)) == [[5, 7], [3, 5], [1, 7]]
+
+
+def test_unique_single_element():
+    matrix = np.array([[-2]])
+    assert unique_rows(MatrixInput(matrix)) == [[-2]]
+    assert unique_columns(MatrixInput(matrix)) == [[-2]]
+
+
+def test_unique_single_row():
+    matrix = np.array([[9, 4, 9, 4, 6]])
+    assert unique_rows(MatrixInput(matrix)) == [[4, 6, 9]]                 
+    assert unique_columns(MatrixInput(matrix)) == [[9], [4], [9], [4], [6]]  
+
+
+def test_unique_single_column():
+    matrix = np.array([[8], [8], [2], [5]])
+    assert unique_rows(MatrixInput(matrix)) == [[8], [8], [2], [5]]
+    assert unique_columns(MatrixInput(matrix)) == [[2, 5, 8]]
+
+
+def test_unique_all_same():
+    matrix = np.array([[1, 1], [1, 1]])
+    assert unique_rows(MatrixInput(matrix)) == [[1], [1]]
+    assert unique_columns(MatrixInput(matrix)) == [[1], [1]]
+
+
+def test_unique_all_different():
+    matrix = np.array([[1, 2], [3, 4]])
+    assert unique_rows(MatrixInput(matrix)) == [[1, 2], [3, 4]]
+    assert unique_columns(MatrixInput(matrix)) == [[1, 3], [2, 4]]
+
+
+def test_unique_floats_and_negative():
+    matrix = np.array([[0.5, 0.5], [-1.0, 2.0]])
+    assert unique_rows(MatrixInput(matrix)) == [[0.5], [-1.0, 2.0]]
+    assert unique_columns(MatrixInput(matrix)) == [[-1.0, 0.5], [0.5, 2.0]]
+
+
+#matrix_statistics
