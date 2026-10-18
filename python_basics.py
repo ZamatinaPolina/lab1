@@ -75,4 +75,8 @@ def pyramid(data: PositiveIntegerInput) -> int | str:
 
 def is_balanced_number(data: PositiveIntegerInput) -> bool:
     number = data.value
-    raise NotImplementedError  # TODO
+    digits = [int(char) for char in str(number)]
+    half = (len(digits) - 1) // 2
+    left = digits[:half]
+    right = digits[len(digits) - half:]
+    return sum(left) == sum(right)
