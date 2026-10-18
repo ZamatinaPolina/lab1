@@ -15,7 +15,7 @@ def has_unique_characters(data: TextInput) -> bool:
 
 def count_one_bits(data: PositiveIntegerInput) -> int:
     number = data.value
-    raise NotImplementedError  # TODO
+    return bin(number).count("1")
 
 
 def multiplicative_persistence(data: PositiveIntegerInput) -> int:
