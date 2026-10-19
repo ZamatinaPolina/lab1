@@ -55,8 +55,16 @@ def draw_rectangle(data: RectangleInput) -> np.ndarray:
     width, height = data.width, data.height
     image_height, image_width = data.image_height, data.image_width
     shape_color, background_color = data.shape_color, data.background_color
-    raise NotImplementedError  # TODO
+    
+    image = np.full((image_height, image_width, 3), background_color, dtype=np.uint8)
 
+    top = max((image_height - height) // 2, 0)
+    left = max((image_width - width) // 2, 0)
+    bottom = min(top + height, image_height)
+    right = min(left + width, image_width)
+
+    image[top:bottom, left:right] = shape_color
+    return image
 
 def draw_ellipse(data: EllipseInput) -> np.ndarray:
     semi_axis_x, semi_axis_y = data.semi_axis_x, data.semi_axis_y
