@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 
 
-from numpy_tasks import sum_prod, binarize, unique_rows, unique_columns
-from grader_contracts.numpy_tasks import MatrixVectorBatchInput, BinarizeInput, MatrixInput
+from numpy_tasks import sum_prod, binarize, unique_rows, unique_columns, matrix_statistics
+from grader_contracts.numpy_tasks import MatrixVectorBatchInput, BinarizeInput, MatrixInput, RandomMatrixInput
 
 
 def test_sum_prod_basic():
@@ -134,3 +134,67 @@ def test_unique_floats_and_negative():
 
 
 #matrix_statistics
+def test_matrix_statistics_shapes():
+    result = matrix_statistics(RandomMatrixInput(rows=3, columns=4, seed=1))
+    assert result.matrix.shape == (3, 4)
+    assert result.row_means.shape == (3,)        
+    assert result.column_means.shape == (4,)     
+    assert result.row_variances.shape == (3,)
+    assert result.column_variances.shape == (4,)
+
+
+def test_matrix_statistics_first_row_and_column():
+    result = matrix_statistics(RandomMatrixInput(rows=3, columns=4, seed=1))
+
+    first_row = result.matrix[0]                 # первая строка таблицы
+    manual_row_mean = sum(first_row) / 4         # в строке 4 числа: сложили и поделили на 4
+    assert result.row_means[0] == pytest.approx(manual_row_mean)
+
+    first_column = result.matrix[:, 0]           # первый столбец таблицы
+    manual_column_mean = sum(first_column) / 3   # в столбце 3 числа: сложили и поделили на 3
+    assert result.column_means[0] == pytest.approx(manual_column_mean)
+
+
+def test_matrix_statistics_same_seed_same_result():
+    first = matrix_statistics(RandomMatrixInput(rows=3, columns=3, seed=7))
+    second = matrix_statistics(RandomMatrixInput(rows=3, columns=3, seed=7))
+    np.testing.assert_array_equal(first.matrix, second.matrix)
+
+
+def test_matrix_statistics_different_seed_different_result():
+    first = matrix_statistics(RandomMatrixInput(rows=3, columns=3, seed=7))
+    second = matrix_statistics(RandomMatrixInput(rows=3, columns=3, seed=8))
+    assert not np.array_equal(first.matrix, second.matrix)
+
+
+def test_matrix_statistics_zero_std():
+    result = matrix_statistics(RandomMatrixInput(rows=2, columns=3, mean=5.0, std=0.0))
+    np.testing.assert_array_equal(result.matrix, np.full((2, 3), 5.0))
+    np.testing.assert_array_equal(result.row_variances, [0.0, 0.0])
+    np.testing.assert_array_equal(result.column_variances, [0.0, 0.0, 0.0])
+
+
+def test_matrix_statistics_single_element():
+    result = matrix_statistics(RandomMatrixInput(rows=1, columns=1, mean=2.0, std=1.0, seed=3))
+    assert result.matrix.shape == (1, 1)
+    assert result.row_means[0] == pytest.approx(result.matrix[0, 0])
+    assert result.row_variances[0] == 0.0    
+    assert result.column_variances[0] == 0.0
+
+
+def test_matrix_statistics_single_row():
+    result = matrix_statistics(RandomMatrixInput(rows=1, columns=5, seed=4))
+    assert result.row_means.shape == (1,)
+    assert result.column_means.shape == (5,)
+    np.testing.assert_array_equal(result.column_variances, np.zeros(5))   # в каждом столбце одно число
+
+
+def test_matrix_statistics_follows_mean_and_std():
+    result = matrix_statistics(RandomMatrixInput(rows=200, columns=200, mean=5.0, std=2.0, seed=0))
+    assert result.matrix.mean() == pytest.approx(5.0, abs=0.1)
+    assert result.matrix.std() == pytest.approx(2.0, abs=0.1)
+
+
+def test_matrix_statistics_default_parameters():
+    result = matrix_statistics(RandomMatrixInput(rows=2, columns=2))
+    assert result.matrix.shape == (2, 2)
