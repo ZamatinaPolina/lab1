@@ -86,9 +86,36 @@ def draw_ellipse(data: EllipseInput) -> np.ndarray:
 
 def analyze_time_series(data: TimeSeriesInput) -> TimeSeriesStatistics:
     values, window = data.values, data.window
-    raise NotImplementedError  # TODO
+    values = np.asarray(values, dtype=float)
+    if window < 1 or window > len(values):
+        raise ValueError("Размер окна должен быть от 1 до длины ряда")
+
+    middle = values[1:-1]
+    left = values[:-2]
+    right = values[2:]
+    maxima = np.flatnonzero((middle > left) & (middle > right)) + 1
+    minima = np.flatnonzero((middle < left) & (middle < right)) + 1
+
+    moving_average = np.array(
+        [values[i:i + window].mean() for i in range(len(values) - window + 1)]
+    )
+    return TimeSeriesStatistics(
+        mean=float(values.mean()),
+        variance=float(values.var()),
+        std=float(values.std()),
+        local_maxima_indices=maxima,
+        local_minima_indices=minima,
+        moving_average=moving_average,
+    )
 
 
 def one_hot(data: OneHotInput) -> np.ndarray:
     labels, class_count = data.labels, data.class_count
-    raise NotImplementedError  # TODO
+    labels = np.asarray(labels, dtype=int)
+    if class_count is None:
+        class_count = int(labels.max()) + 1 if labels.size > 0 else 0
+    if labels.size > 0 and (labels.min() < 0 or labels.max() >= class_count):
+        raise ValueError("Метки должны быть от 0 до class_count - 1")
+    result = np.zeros((len(labels), class_count), dtype=int)
+    result[np.arange(len(labels)), labels] = 1
+    return result
