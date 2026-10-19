@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 
 
-from numpy_tasks import sum_prod, binarize, unique_rows, unique_columns, matrix_statistics, chess
-from grader_contracts.numpy_tasks import MatrixVectorBatchInput, BinarizeInput, MatrixInput, RandomMatrixInput, ChessInput
+from numpy_tasks import sum_prod, binarize, unique_rows, unique_columns, matrix_statistics, chess, draw_rectangle
+from grader_contracts.numpy_tasks import MatrixVectorBatchInput, BinarizeInput, MatrixInput, RandomMatrixInput, ChessInput, RectangleInput
 
 
 def test_sum_prod_basic():
@@ -248,4 +248,94 @@ def test_chess_float_and_negative_values():
     result = chess(ChessInput(rows=2, columns=2, first=0.5, second=-1.5))
     np.testing.assert_allclose(result, [[0.5, -1.5], [-1.5, 0.5]])
 
+
 #draw_rectangle и draw_ellipse
+def test_draw_rectangle_exact_picture():
+    result = draw_rectangle(RectangleInput(
+        width=3, height=1, image_height=3, image_width=5,
+        shape_color=(9, 9, 9), background_color=(0, 0, 0),
+    ))
+    bg = [0, 0, 0]
+    shape = [9, 9, 9]
+    expected = np.array([
+        [bg, bg, bg, bg, bg],
+        [bg, shape, shape, shape, bg],
+        [bg, bg, bg, bg, bg],
+    ])
+    np.testing.assert_array_equal(result, expected)
+
+
+def test_draw_rectangle_shape_and_type():
+    result = draw_rectangle(RectangleInput(
+        width=2, height=2, image_height=4, image_width=6,
+        shape_color=(255, 0, 0), background_color=(0, 0, 0),
+    ))
+    assert result.shape == (4, 6, 3) 
+    assert result.dtype == np.uint8
+
+
+def test_draw_rectangle_single_pixel():
+    result = draw_rectangle(RectangleInput(
+        width=1, height=1, image_height=3, image_width=3,
+        shape_color=(255, 0, 0), background_color=(0, 0, 0),
+    ))
+    painted = (result == [255, 0, 0]).all(axis=2) 
+    assert painted.sum() == 1                  
+    assert painted[1, 1]                            
+
+
+def test_draw_rectangle_background_color():
+    result = draw_rectangle(RectangleInput(
+        width=2, height=2, image_height=4, image_width=4,
+        shape_color=(255, 255, 255), background_color=(10, 20, 30),
+    ))
+    np.testing.assert_array_equal(result[0, 0], [10, 20, 30])   
+
+
+def test_draw_rectangle_covers_whole_image():
+    result = draw_rectangle(RectangleInput(
+        width=5, height=4, image_height=4, image_width=5,
+        shape_color=(1, 2, 3), background_color=(4, 5, 6),
+    ))
+    assert (result == [1, 2, 3]).all()             
+
+
+def test_draw_rectangle_bigger_than_image_is_cut():
+    result = draw_rectangle(RectangleInput(
+        width=10, height=10, image_height=3, image_width=3,
+        shape_color=(1, 2, 3), background_color=(4, 5, 6),
+    ))
+    assert result.shape == (3, 3, 3)
+    assert (result == [1, 2, 3]).all()
+
+
+def test_draw_rectangle_pixel_count():
+    result = draw_rectangle(RectangleInput(
+        width=4, height=3, image_height=10, image_width=12,
+        shape_color=(1, 2, 3), background_color=(4, 5, 6),
+    ))
+    painted = (result == [1, 2, 3]).all(axis=2)
+    assert painted.sum() == 12                       # 4 * 3 точек
+
+
+def test_draw_rectangle_is_centered():
+    result = draw_rectangle(RectangleInput(
+        width=3, height=3, image_height=7, image_width=9,
+        shape_color=(1, 2, 3), background_color=(4, 5, 6),
+    ))
+    painted = (result == [1, 2, 3]).all(axis=2)
+    assert painted.sum() == 9
+    assert painted[2:5, 3:6].all()                   # строки 2-4 и столбцы 3-5
+
+
+def test_draw_rectangle_width_and_height_not_swapped():
+    # ширина 4, высота 2
+    result = draw_rectangle(RectangleInput(
+        width=4, height=2, image_height=6, image_width=8,
+        shape_color=(1, 2, 3), background_color=(4, 5, 6),
+    ))
+    painted = (result == [1, 2, 3]).all(axis=2)
+    assert painted.sum() == 8
+    assert painted[2:4, 2:6].all()   
+
+
