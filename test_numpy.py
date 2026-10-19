@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 
 
-from numpy_tasks import sum_prod, binarize, unique_rows, unique_columns, matrix_statistics, chess, draw_rectangle, draw_ellipse
-from grader_contracts.numpy_tasks import MatrixVectorBatchInput, BinarizeInput, MatrixInput, RandomMatrixInput, ChessInput, RectangleInput, EllipseInput
+from numpy_tasks import sum_prod, binarize, unique_rows, unique_columns, matrix_statistics, chess, draw_rectangle, draw_ellipse, analyze_time_series, one_hot
+from grader_contracts.numpy_tasks import MatrixVectorBatchInput, BinarizeInput, MatrixInput, RandomMatrixInput, ChessInput, RectangleInput, EllipseInput, TimeSeriesInput, OneHotInput
 
 
 def test_sum_prod_basic():
@@ -332,5 +332,67 @@ def test_draw_ellipse_covers_whole_image():
     ))
     assert (result == [1, 2, 3]).all()
 
+#analyze_time_series
+def test_analyze_time_series_basic():
+    result = analyze_time_series(TimeSeriesInput(values=[1, 3, 2, 5, 4], window=2))
+    assert result.mean == pytest.approx(3.0)
+    assert result.variance == pytest.approx(2.0)
+    assert result.std == pytest.approx(2 ** 0.5)
+    np.testing.assert_array_equal(result.local_maxima_indices, [1, 3])
+    np.testing.assert_array_equal(result.local_minima_indices, [2])
+    np.testing.assert_allclose(result.moving_average, [2.0, 2.5, 3.5, 4.5])
 
 
+def test_analyze_time_series_ignores_first_and_last():
+    result = analyze_time_series(TimeSeriesInput(values=[9, 1, 5, 2, 9], window=1))
+    np.testing.assert_array_equal(result.local_maxima_indices, [2])
+    np.testing.assert_array_equal(result.local_minima_indices, [1, 3])
+
+
+def test_analyze_time_series_extrema_are_strict():
+    result = analyze_time_series(TimeSeriesInput(values=[1, 3, 3, 1], window=2))
+    assert len(result.local_maxima_indices) == 0
+    assert len(result.local_minima_indices) == 0
+
+
+def test_analyze_time_series_single_value():
+    result = analyze_time_series(TimeSeriesInput(values=[7], window=1))
+    assert result.mean == pytest.approx(7.0)
+    assert result.variance == pytest.approx(0.0)
+    assert len(result.local_maxima_indices) == 0
+    assert len(result.local_minima_indices) == 0
+    np.testing.assert_allclose(result.moving_average, [7.0])
+
+
+def test_analyze_time_series_moving_average_length():
+    result = analyze_time_series(TimeSeriesInput(values=list(range(10)), window=4))
+    assert len(result.moving_average) == 7
+
+#one_hot
+def test_one_hot_example_from_task():
+    result = one_hot(OneHotInput(labels=[0, 2, 3, 0]))
+    np.testing.assert_array_equal(result, [[1, 0, 0, 0],
+                                           [0, 0, 1, 0],
+                                           [0, 0, 0, 1],
+                                           [1, 0, 0, 0]])
+
+
+def test_one_hot_class_count_given():
+    result = one_hot(OneHotInput(labels=[1, 0], class_count=4))
+    np.testing.assert_array_equal(result, [[0, 1, 0, 0],
+                                           [1, 0, 0, 0]])
+
+
+def test_one_hot_class_count_from_max_label():
+    result = one_hot(OneHotInput(labels=[1, 4]))
+    assert result.shape == (2, 5)
+
+
+def test_one_hot_single_label():
+    result = one_hot(OneHotInput(labels=[0]))
+    np.testing.assert_array_equal(result, [[1]])
+
+
+def test_one_hot_one_in_each_row():
+    result = one_hot(OneHotInput(labels=[2, 2, 0, 1, 2]))
+    np.testing.assert_array_equal(result.sum(axis=1), [1, 1, 1, 1, 1])
