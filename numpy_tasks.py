@@ -70,7 +70,18 @@ def draw_ellipse(data: EllipseInput) -> np.ndarray:
     semi_axis_x, semi_axis_y = data.semi_axis_x, data.semi_axis_y
     image_height, image_width = data.image_height, data.image_width
     shape_color, background_color = data.shape_color, data.background_color
-    raise NotImplementedError  # TODO
+
+    image = np.full((image_height, image_width, 3), background_color, dtype=np.uint8)
+
+    y, x = np.indices((image_height, image_width))
+    x0 = (image_width - 1) / 2
+    y0 = (image_height - 1) / 2
+
+    inside = ((x - x0) / semi_axis_x) ** 2 + ((y - y0) / semi_axis_y) ** 2 <= 1
+    image[inside] = shape_color
+    return image
+
+
 
 
 def analyze_time_series(data: TimeSeriesInput) -> TimeSeriesStatistics:
