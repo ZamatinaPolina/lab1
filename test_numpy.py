@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 
 
-from numpy_tasks import sum_prod, binarize, unique_rows, unique_columns, matrix_statistics, chess, draw_rectangle
-from grader_contracts.numpy_tasks import MatrixVectorBatchInput, BinarizeInput, MatrixInput, RandomMatrixInput, ChessInput, RectangleInput
+from numpy_tasks import sum_prod, binarize, unique_rows, unique_columns, matrix_statistics, chess, draw_rectangle, draw_ellipse
+from grader_contracts.numpy_tasks import MatrixVectorBatchInput, BinarizeInput, MatrixInput, RandomMatrixInput, ChessInput, RectangleInput, EllipseInput
 
 
 def test_sum_prod_basic():
@@ -338,4 +338,17 @@ def test_draw_rectangle_width_and_height_not_swapped():
     assert painted.sum() == 8
     assert painted[2:4, 2:6].all()   
 
+def test_draw_ellipse_exact_picture():
+    result = draw_ellipse(EllipseInput(
+        semi_axis_x=2, semi_axis_y=1, image_height=3, image_width=5,
+        shape_color=(9, 9, 9), background_color=(0, 0, 0),
+    ))
+    bg = [0, 0, 0]
+    shape = [9, 9, 9]
+    expected = np.array([
+        [bg, bg, shape, bg, bg],
+        [shape, shape, shape, shape, shape],
+        [bg, bg, shape, bg, bg],
+    ])
+    np.testing.assert_array_equal(result, expected)
 
