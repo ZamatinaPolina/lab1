@@ -34,8 +34,16 @@ def unique_columns(data: MatrixInput) -> list[list[float]]:
 
 def matrix_statistics(data: RandomMatrixInput) -> MatrixStatistics:
     rows, columns, mean, std, seed = data.rows, data.columns, data.mean, data.std, data.seed
-    raise NotImplementedError  # TODO
+    rng = np.random.default_rng(seed)                       
+    matrix = rng.normal(loc=mean, scale=std, size=(rows, columns))  
 
+    return MatrixStatistics(
+        matrix=matrix,
+        row_means=matrix.mean(axis=1),            # среднее по каждой строке
+        column_means=matrix.mean(axis=0),         # среднее по каждому столбцу
+        row_variances=matrix.var(axis=1),         # дисперсия для каждой строки
+        column_variances=matrix.var(axis=0),      # дисперсия для каждого столбца
+    )
 
 def chess(data: ChessInput) -> np.ndarray:
     rows, columns, first, second = data.rows, data.columns, data.first, data.second
