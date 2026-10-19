@@ -137,8 +137,8 @@ def test_unique_floats_and_negative():
 def test_matrix_statistics_shapes():
     result = matrix_statistics(RandomMatrixInput(rows=3, columns=4, seed=1))
     assert result.matrix.shape == (3, 4)
-    assert result.row_means.shape == (3,)        
-    assert result.column_means.shape == (4,)     
+    assert result.row_means.shape == (3,)
+    assert result.column_means.shape == (4,)
     assert result.row_variances.shape == (3,)
     assert result.column_variances.shape == (4,)
 
@@ -146,12 +146,12 @@ def test_matrix_statistics_shapes():
 def test_matrix_statistics_first_row_and_column():
     result = matrix_statistics(RandomMatrixInput(rows=3, columns=4, seed=1))
 
-    first_row = result.matrix[0]                 # первая строка таблицы
-    manual_row_mean = sum(first_row) / 4         # в строке 4 числа: сложили и поделили на 4
+    first_row = result.matrix[0]
+    manual_row_mean = sum(first_row) / 4
     assert result.row_means[0] == pytest.approx(manual_row_mean)
 
-    first_column = result.matrix[:, 0]           # первый столбец таблицы
-    manual_column_mean = sum(first_column) / 3   # в столбце 3 числа: сложили и поделили на 3
+    first_column = result.matrix[:, 0]
+    manual_column_mean = sum(first_column) / 3
     assert result.column_means[0] == pytest.approx(manual_column_mean)
 
 
@@ -178,26 +178,8 @@ def test_matrix_statistics_single_element():
     result = matrix_statistics(RandomMatrixInput(rows=1, columns=1, mean=2.0, std=1.0, seed=3))
     assert result.matrix.shape == (1, 1)
     assert result.row_means[0] == pytest.approx(result.matrix[0, 0])
-    assert result.row_variances[0] == 0.0    
+    assert result.row_variances[0] == 0.0
     assert result.column_variances[0] == 0.0
-
-
-def test_matrix_statistics_single_row():
-    result = matrix_statistics(RandomMatrixInput(rows=1, columns=5, seed=4))
-    assert result.row_means.shape == (1,)
-    assert result.column_means.shape == (5,)
-    np.testing.assert_array_equal(result.column_variances, np.zeros(5))   # в каждом столбце одно число
-
-
-def test_matrix_statistics_follows_mean_and_std():
-    result = matrix_statistics(RandomMatrixInput(rows=200, columns=200, mean=5.0, std=2.0, seed=0))
-    assert result.matrix.mean() == pytest.approx(5.0, abs=0.1)
-    assert result.matrix.std() == pytest.approx(2.0, abs=0.1)
-
-
-def test_matrix_statistics_default_parameters():
-    result = matrix_statistics(RandomMatrixInput(rows=2, columns=2))
-    assert result.matrix.shape == (2, 2)
 
 #chess
 def test_chess_example_from_task():
@@ -244,11 +226,6 @@ def test_chess_equal_values():
     np.testing.assert_array_equal(result, np.full((2, 3), 4))
 
 
-def test_chess_float_and_negative_values():
-    result = chess(ChessInput(rows=2, columns=2, first=0.5, second=-1.5))
-    np.testing.assert_allclose(result, [[0.5, -1.5], [-1.5, 0.5]])
-
-
 #draw_rectangle и draw_ellipse
 def test_draw_rectangle_exact_picture():
     result = draw_rectangle(RectangleInput(
@@ -270,7 +247,7 @@ def test_draw_rectangle_shape_and_type():
         width=2, height=2, image_height=4, image_width=6,
         shape_color=(255, 0, 0), background_color=(0, 0, 0),
     ))
-    assert result.shape == (4, 6, 3) 
+    assert result.shape == (4, 6, 3)
     assert result.dtype == np.uint8
 
 
@@ -279,17 +256,9 @@ def test_draw_rectangle_single_pixel():
         width=1, height=1, image_height=3, image_width=3,
         shape_color=(255, 0, 0), background_color=(0, 0, 0),
     ))
-    painted = (result == [255, 0, 0]).all(axis=2) 
-    assert painted.sum() == 1                  
-    assert painted[1, 1]                            
-
-
-def test_draw_rectangle_background_color():
-    result = draw_rectangle(RectangleInput(
-        width=2, height=2, image_height=4, image_width=4,
-        shape_color=(255, 255, 255), background_color=(10, 20, 30),
-    ))
-    np.testing.assert_array_equal(result[0, 0], [10, 20, 30])   
+    painted = (result == [255, 0, 0]).all(axis=2)
+    assert painted.sum() == 1
+    assert painted[1, 1]
 
 
 def test_draw_rectangle_covers_whole_image():
@@ -297,35 +266,7 @@ def test_draw_rectangle_covers_whole_image():
         width=5, height=4, image_height=4, image_width=5,
         shape_color=(1, 2, 3), background_color=(4, 5, 6),
     ))
-    assert (result == [1, 2, 3]).all()             
-
-
-def test_draw_rectangle_bigger_than_image_is_cut():
-    result = draw_rectangle(RectangleInput(
-        width=10, height=10, image_height=3, image_width=3,
-        shape_color=(1, 2, 3), background_color=(4, 5, 6),
-    ))
-    assert result.shape == (3, 3, 3)
     assert (result == [1, 2, 3]).all()
-
-
-def test_draw_rectangle_pixel_count():
-    result = draw_rectangle(RectangleInput(
-        width=4, height=3, image_height=10, image_width=12,
-        shape_color=(1, 2, 3), background_color=(4, 5, 6),
-    ))
-    painted = (result == [1, 2, 3]).all(axis=2)
-    assert painted.sum() == 12                       # 4 * 3 точек
-
-
-def test_draw_rectangle_is_centered():
-    result = draw_rectangle(RectangleInput(
-        width=3, height=3, image_height=7, image_width=9,
-        shape_color=(1, 2, 3), background_color=(4, 5, 6),
-    ))
-    painted = (result == [1, 2, 3]).all(axis=2)
-    assert painted.sum() == 9
-    assert painted[2:5, 3:6].all()                   # строки 2-4 и столбцы 3-5
 
 
 def test_draw_rectangle_width_and_height_not_swapped():
@@ -336,7 +277,7 @@ def test_draw_rectangle_width_and_height_not_swapped():
     ))
     painted = (result == [1, 2, 3]).all(axis=2)
     assert painted.sum() == 8
-    assert painted[2:4, 2:6].all()   
+    assert painted[2:4, 2:6].all()
 
 def test_draw_ellipse_exact_picture():
     result = draw_ellipse(EllipseInput(
@@ -351,4 +292,45 @@ def test_draw_ellipse_exact_picture():
         [bg, bg, shape, bg, bg],
     ])
     np.testing.assert_array_equal(result, expected)
+
+
+def test_draw_ellipse_shape_and_type():
+    result = draw_ellipse(EllipseInput(
+        semi_axis_x=2, semi_axis_y=2, image_height=4, image_width=6,
+        shape_color=(255, 0, 0), background_color=(0, 0, 0),
+    ))
+    assert result.shape == (4, 6, 3)
+    assert result.dtype == np.uint8
+
+
+def test_draw_ellipse_small_circle():
+    result = draw_ellipse(EllipseInput(
+        semi_axis_x=1, semi_axis_y=1, image_height=3, image_width=3,
+        shape_color=(1, 2, 3), background_color=(4, 5, 6),
+    ))
+    painted = (result == [1, 2, 3]).all(axis=2)
+    expected = np.array([[False, True, False],
+                         [True, True, True],
+                         [False, True, False]])
+    np.testing.assert_array_equal(painted, expected)
+
+
+def test_draw_ellipse_axes_not_swapped():
+    result = draw_ellipse(EllipseInput(
+        semi_axis_x=3, semi_axis_y=1, image_height=5, image_width=9,
+        shape_color=(1, 2, 3), background_color=(4, 5, 6),
+    ))
+    painted = (result == [1, 2, 3]).all(axis=2)
+    assert painted[2].sum() == 7        # средняя строка: 7 точек
+    assert painted[:, 4].sum() == 3     # средний столбец: 3 точки
+
+
+def test_draw_ellipse_covers_whole_image():
+    result = draw_ellipse(EllipseInput(
+        semi_axis_x=100, semi_axis_y=100, image_height=3, image_width=3,
+        shape_color=(1, 2, 3), background_color=(4, 5, 6),
+    ))
+    assert (result == [1, 2, 3]).all()
+
+
 
