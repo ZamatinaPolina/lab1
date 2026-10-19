@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 
 
-from numpy_tasks import sum_prod, binarize, unique_rows, unique_columns, matrix_statistics
-from grader_contracts.numpy_tasks import MatrixVectorBatchInput, BinarizeInput, MatrixInput, RandomMatrixInput
+from numpy_tasks import sum_prod, binarize, unique_rows, unique_columns, matrix_statistics, chess
+from grader_contracts.numpy_tasks import MatrixVectorBatchInput, BinarizeInput, MatrixInput, RandomMatrixInput, ChessInput
 
 
 def test_sum_prod_basic():
@@ -198,3 +198,54 @@ def test_matrix_statistics_follows_mean_and_std():
 def test_matrix_statistics_default_parameters():
     result = matrix_statistics(RandomMatrixInput(rows=2, columns=2))
     assert result.matrix.shape == (2, 2)
+
+#chess
+def test_chess_example_from_task():
+    result = chess(ChessInput(rows=3, columns=4, first=0, second=1))
+    np.testing.assert_array_equal(result, [[0, 1, 0, 1],
+                                           [1, 0, 1, 0],
+                                           [0, 1, 0, 1]])
+
+
+def test_chess_top_left_is_first():
+    result = chess(ChessInput(rows=2, columns=2, first=7, second=3))
+    np.testing.assert_array_equal(result, [[7, 3], [3, 7]])
+
+
+def test_chess_single_cell():
+    result = chess(ChessInput(rows=1, columns=1, first=5, second=9))
+    np.testing.assert_array_equal(result, [[5]])
+
+
+def test_chess_single_row():
+    result = chess(ChessInput(rows=1, columns=5, first=1, second=2))
+    np.testing.assert_array_equal(result, [[1, 2, 1, 2, 1]])
+
+
+def test_chess_single_column():
+    result = chess(ChessInput(rows=4, columns=1, first=1, second=2))
+    np.testing.assert_array_equal(result, [[1], [2], [1], [2]])
+
+
+def test_chess_odd_square():
+    result = chess(ChessInput(rows=3, columns=3, first=1, second=2))
+    np.testing.assert_array_equal(result, [[1, 2, 1],
+                                           [2, 1, 2],
+                                           [1, 2, 1]])
+
+
+def test_chess_shape():
+    result = chess(ChessInput(rows=5, columns=2, first=0, second=1))
+    assert result.shape == (5, 2)
+
+
+def test_chess_equal_values():
+    result = chess(ChessInput(rows=2, columns=3, first=4, second=4))
+    np.testing.assert_array_equal(result, np.full((2, 3), 4))
+
+
+def test_chess_float_and_negative_values():
+    result = chess(ChessInput(rows=2, columns=2, first=0.5, second=-1.5))
+    np.testing.assert_allclose(result, [[0.5, -1.5], [-1.5, 0.5]])
+
+#draw_rectangle и draw_ellipse
