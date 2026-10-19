@@ -47,7 +47,8 @@ def matrix_statistics(data: RandomMatrixInput) -> MatrixStatistics:
 
 def chess(data: ChessInput) -> np.ndarray:
     rows, columns, first, second = data.rows, data.columns, data.first, data.second
-    raise NotImplementedError  # TODO
+    row_index, column_index = np.indices((rows, columns))
+    return np.where((row_index + column_index) % 2 == 0, first, second)
 
 
 def draw_rectangle(data: RectangleInput) -> np.ndarray:
